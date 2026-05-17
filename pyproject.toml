@@ -1,0 +1,60 @@
+[build-system]
+requires = ["hatchling>=1.18"]
+build-backend = "hatchling.build"
+
+[project]
+name = "neurath"
+version = "0.0.1"
+description = "Belief revision OSS that bridges NARS truth-value math and LLM belief tracking, embodying Quine's Web of Belief"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "hinanohart" }]
+keywords = ["belief-revision", "NARS", "LLM", "Quine", "epistemology", "knowledge-graph"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "networkx>=3.2",
+    "pydantic>=2.5",
+    "litellm>=1.40",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+benchmark = [
+    "datasets>=2.18",
+    "scipy>=1.12",
+]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=4.1",
+    "hypothesis>=6.100",
+    "ruff>=0.4",
+    "mypy>=1.10",
+    "vcrpy>=6.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/hinanohart/neurath"
+Repository = "https://github.com/hinanohart/neurath"
+Issues = "https://github.com/hinanohart/neurath/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/neurath"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
