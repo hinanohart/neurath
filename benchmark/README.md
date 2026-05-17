@@ -26,5 +26,8 @@ that other implementations can compare against.
 
 ## Dataset
 
-We pin the dataset by commit hash. See `benchmark/datasets.lock` (created on
-first run).
+The runner computes a SHA-256 of the dataset file and embeds it in each
+results JSON (`dataset_sha256` field) so a reproduction attempt can verify
+that exactly the same bytes were used. There is no committed
+`benchmark/datasets.lock` file at release time — the hash is captured in the
+results artifact on each run.

@@ -23,8 +23,22 @@ jobs:
           name: dist
           path: dist/
 
+  sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e . cyclonedx-bom
+      - run: cyclonedx-py environment --output-format JSON -o sbom.cyclonedx.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.cyclonedx.json
+
   github_release:
-    needs: build
+    needs: [build, sbom]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,16 +46,25 @@ jobs:
         with:
           name: dist
           path: dist/
+      - uses: actions/download-artifact@v4
+        with:
+          name: sbom
+          path: sbom/
       - uses: softprops/action-gh-release@v2
         with:
-          files: dist/*
+          # Attach distributions AND the supply-chain SBOM to the release.
+          files: |
+            dist/*
+            sbom/sbom.cyclonedx.json
           generate_release_notes: true
 
   pypi_publish:
     # Requires PyPI Trusted Publisher set up at
     #   https://pypi.org/manage/account/publishing/
     # If not yet configured, this job will skip cleanly.
-    needs: build
+    # `needs: github_release` keeps the order atomic: PyPI never publishes
+    # ahead of the GitHub Release artifacts (or in parallel with them).
+    needs: [build, github_release]
     runs-on: ubuntu-latest
     environment: pypi
     if: ${{ vars.PYPI_TRUSTED_PUBLISHER == 'true' }}

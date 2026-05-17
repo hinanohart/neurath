@@ -10,11 +10,15 @@ mechanical.
 `mutilation_score` is the sum of:
 
 - the direct shift in the target's expectation (`|E(t') - E(t)|`), and
-- a propagation penalty equal to a constant fraction of the absolute shift,
-  multiplied by the number of beliefs that the target supports or entails.
+- a propagation penalty equal to ``propagation_weight`` × the absolute shift,
+  multiplied by the number of beliefs reachable from the target via
+  ``entails`` or ``supports`` edges (the propagation closure).
 
-The penalty constant `PROPAGATION_WEIGHT` is intentionally small (`0.1`) in
-v0.1; a learned or domain-tuned weight is left for later versions.
+The default `propagation_weight` is small (`0.1`) — see the *Conceptual gaps*
+section of the README for why this is a placeholder rather than a learned
+weight, and for what a richer minimum-mutilation kernel would look like.
+``HolisticReviser`` takes ``propagation_weight`` as a constructor argument so
+callers can tune it without monkey-patching the module.
 """
 
 from __future__ import annotations
@@ -23,13 +27,19 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 
 from neurath.store.belief import Belief, BeliefId, BeliefStore
+from neurath.store.history import RevisionRecord
 from neurath.store.truth import TruthValue
 
 PROPAGATION_WEIGHT: float = 0.1
-"""Fraction of the direct shift that each downstream belief contributes."""
+"""Default fraction of the direct shift that each downstream belief contributes."""
 
 PROPAGATION_EDGES: tuple[str, ...] = ("entails", "supports")
-"""Edge kinds that count as `target depends on this belief` for mutilation."""
+"""Edge kinds that count as `target depends on this belief` for mutilation.
+
+Excludes ``contradicts`` (semantically inverse, not a dependency edge) and
+``specializes`` (a taxonomy edge, currently not used to propagate mutilation —
+see *Conceptual gaps* in the README).
+"""
 
 
 @dataclass(frozen=True, slots=True)
@@ -46,8 +56,16 @@ class RevisionPlan:
 class HolisticReviser:
     """Compute and apply minimum-mutilation revision plans on a :class:`BeliefStore`."""
 
-    def __init__(self, store: BeliefStore) -> None:
+    def __init__(
+        self,
+        store: BeliefStore,
+        *,
+        propagation_weight: float = PROPAGATION_WEIGHT,
+    ) -> None:
+        if propagation_weight < 0:
+            raise ValueError(f"propagation_weight must be >= 0, got {propagation_weight!r}")
         self.store = store
+        self.propagation_weight = propagation_weight
 
     # -- planning -----------------------------------------------------------
 
@@ -95,12 +113,10 @@ class HolisticReviser:
     def apply(self, plan: RevisionPlan, observation_id: BeliefId | None = None) -> Belief:
         """Mutate the store so that `plan.target_id` carries `plan.new_truth`.
 
-        Records a :class:`RevisionRecord` in the store's history. The L4
-        introspection import is local so the planner does not pull the
-        introspection module unless apply is called.
+        Records a :class:`RevisionRecord` in the store's history. The record
+        type lives in :mod:`neurath.store.history` so this writer does not
+        depend on the L4 introspection module.
         """
-        from neurath.introspect.api import RevisionRecord
-
         target = self.store.get(plan.target_id)
         before = target.truth
         revised = target.model_copy(update={"truth": plan.new_truth})
@@ -135,8 +151,8 @@ class HolisticReviser:
         frontier: list[BeliefId] = [target_id]
         while frontier:
             current = frontier.pop()
-            for _, neighbour, kind in graph.out_edges(current, keys=True):
-                if kind in PROPAGATION_EDGES and neighbour not in seen:
+            for _, neighbour, data in graph.out_edges(current, data=True):
+                if data["kind"] in PROPAGATION_EDGES and neighbour not in seen:
                     seen.add(neighbour)
                     frontier.append(neighbour)
         return sorted(seen)
@@ -148,4 +164,4 @@ class HolisticReviser:
         affected: list[BeliefId],
     ) -> float:
         direct = abs(after.expectation() - before.expectation())
-        return direct + PROPAGATION_WEIGHT * direct * len(affected)
+        return direct + self.propagation_weight * direct * len(affected)

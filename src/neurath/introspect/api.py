@@ -11,29 +11,12 @@ believing is itself an object that can be inspected.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from datetime import UTC, datetime
 from typing import Any
 
 from neurath.store.belief import BeliefId, BeliefStore
-from neurath.store.truth import TruthValue
+from neurath.store.history import RevisionRecord
 
-
-@dataclass(frozen=True, slots=True)
-class RevisionRecord:
-    """One step in a belief's revision history."""
-
-    target_id: BeliefId
-    before: TruthValue
-    after: TruthValue
-    observation_id: BeliefId | None
-    rationale: str
-    timestamp: datetime = None  # type: ignore[assignment]
-
-    def __post_init__(self) -> None:
-        # Cannot use default_factory on frozen dataclass + slots, so set here.
-        if self.timestamp is None:
-            object.__setattr__(self, "timestamp", datetime.now(UTC))
+__all__ = ["Introspector", "RevisionRecord"]
 
 
 class Introspector:
@@ -94,7 +77,7 @@ class Introspector:
                 for belief in [data["belief"]]
             ],
             "edges": [
-                {"source": src, "target": tgt, "kind": kind}
-                for src, tgt, kind in graph.edges(keys=True)
+                {"source": src, "target": tgt, "kind": data["kind"]}
+                for src, tgt, data in graph.edges(data=True)
             ],
         }

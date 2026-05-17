@@ -95,6 +95,79 @@ class TestMutilationScore:
         assert plan.affected_ids == ()
 
 
+class TestPropagationWeightConfigurable:
+    def test_constructor_accepts_custom_weight(self, store: BeliefStore) -> None:
+        a = _b("a")
+        b = _b("b")
+        store.add(a)
+        store.add(b)
+        store.link(a.id, b.id, "supports")
+        observation = _b("contradicts a", freq=0.0, conf=0.9)
+
+        low = HolisticReviser(store, propagation_weight=0.0)
+        high = HolisticReviser(store, propagation_weight=1.0)
+
+        score_low = low.plan(observation, contradicts=[a.id])[0].mutilation_score
+        score_high = high.plan(observation, contradicts=[a.id])[0].mutilation_score
+
+        assert score_high > score_low
+
+    def test_negative_weight_rejected(self, store: BeliefStore) -> None:
+        with pytest.raises(ValueError, match="propagation_weight"):
+            HolisticReviser(store, propagation_weight=-0.1)
+
+
+class TestQuineanInvariants:
+    """Properties that should hold for any 'minimum mutilation' planner."""
+
+    def test_irrelevance_preservation(self, store: BeliefStore) -> None:
+        # Adding and revising a belief disconnected from every other belief
+        # must not perturb the rest of the web at all.
+        target = _b("disconnected-target")
+        bystander_a = _b("bystander-a", freq=0.4, conf=0.3)
+        bystander_b = _b("bystander-b", freq=0.7, conf=0.6)
+        store.add(target)
+        store.add(bystander_a)
+        store.add(bystander_b)
+        store.link(bystander_a.id, bystander_b.id, "supports")
+
+        before_a = store.get(bystander_a.id).truth
+        before_b = store.get(bystander_b.id).truth
+
+        observation = _b("contradicts target", freq=0.0, conf=0.9)
+        reviser = HolisticReviser(store)
+        plan = reviser.plan(observation, contradicts=[target.id])[0]
+        reviser.apply(plan, observation_id=observation.id)
+
+        assert store.get(bystander_a.id).truth == before_a
+        assert store.get(bystander_b.id).truth == before_b
+
+    def test_plan_rank_invariant_under_irrelevant_insertion(self, store: BeliefStore) -> None:
+        # Adding an isolated belief that the observation does not target
+        # must not reorder the existing plan list.
+        isolated = _b("isolated claim")
+        central = _b("central claim")
+        d1 = _b("downstream-1")
+        d2 = _b("downstream-2")
+        for x in (isolated, central, d1, d2):
+            store.add(x)
+        store.link(central.id, d1.id, "supports")
+        store.link(central.id, d2.id, "supports")
+        observation = _b("contradicts both", freq=0.0, conf=0.9)
+        reviser = HolisticReviser(store)
+        plans_before = reviser.plan(observation, contradicts=[central.id, isolated.id])
+        order_before = [p.target_id for p in plans_before]
+
+        # Insert an irrelevant belief.
+        irrelevant = _b("nothing to do with the contradiction")
+        store.add(irrelevant)
+
+        plans_after = reviser.plan(observation, contradicts=[central.id, isolated.id])
+        order_after = [p.target_id for p in plans_after]
+
+        assert order_before == order_after
+
+
 class TestApply:
     def test_apply_replaces_target_truth(self, store: BeliefStore) -> None:
         target = _b("target", freq=0.9, conf=0.7)

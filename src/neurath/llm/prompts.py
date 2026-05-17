@@ -15,7 +15,11 @@ optional supporting context. Respond ONLY with a JSON object of the form:
 checked many times against reality. `confidence` is how much evidence you \
 have to support that frequency estimate; confidence 0 means you have no \
 information at all (frequency should then be 0.5). Confidence must be \
-strictly less than 1 — perfect certainty is not allowed.
+strictly less than 1 — perfect certainty is not allowed; a strong belief \
+should report e.g. 0.99, never 1.0.
+
+Example for a strong but not-quite-certain claim:
+  {"frequency": 0.97, "confidence": 0.85, "justification": "..."}
 """
 
 CLAIM_TO_TRUTH_USER_TEMPLATE = """\

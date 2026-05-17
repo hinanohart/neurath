@@ -67,7 +67,7 @@ def evaluate_case(translator: LLMTranslator, case: dict[str, Any]) -> float:
     plans = reviser.plan(observation)
     if not plans:
         return 0.0
-    reviser.apply(plans[0])
+    reviser.apply(plans[0], observation_id=observation.id)
 
     revised = store.get(target.id).truth
     gold = TruthValue(

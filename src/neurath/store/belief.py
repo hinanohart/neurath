@@ -67,10 +67,15 @@ class BeliefStore:
         return belief.id
 
     def link(self, source: BeliefId, target: BeliefId, kind: RelationKind) -> None:
-        """Add a labelled edge `source --kind--> target`."""
+        """Add a labelled edge `source --kind--> target`.
+
+        Multiple edges of the same `kind` between the same pair of beliefs are
+        permitted; the underlying graph is a ``MultiDiGraph`` and each call
+        appends a fresh edge with an auto-assigned integer key.
+        """
         if source not in self or target not in self:
             raise KeyError(f"unknown belief id: {source!r} or {target!r}")
-        self._graph.add_edge(source, target, key=kind, kind=kind)
+        self._graph.add_edge(source, target, kind=kind)
 
     def replace(self, belief_id: BeliefId, new_belief: Belief) -> None:
         """Replace the belief at `belief_id` in-place, preserving edges."""
@@ -96,7 +101,8 @@ class BeliefStore:
         if belief_id not in self:
             raise KeyError(f"unknown belief id: {belief_id!r}")
         out: list[tuple[Belief, RelationKind]] = []
-        for _, target, edge_kind in self._graph.out_edges(belief_id, keys=True):
+        for _, target, data in self._graph.out_edges(belief_id, data=True):
+            edge_kind = data["kind"]
             if kind is None or edge_kind == kind:
                 out.append((self.get(target), edge_kind))
         return out

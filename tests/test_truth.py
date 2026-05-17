@@ -75,6 +75,16 @@ class TestEvidenceBijection:
         with pytest.raises(ValueError, match="horizon"):
             TruthValue.from_evidence(1.0, 1.0, horizon=0.0)
 
+    def test_huge_evidence_clamps_confidence_below_one(self) -> None:
+        # With evidence weights >= ~2^53 the analytic c = w/(w+k) rounds up to
+        # exactly 1.0 in float64. The constructor's clamp must keep c<1 so the
+        # NARS invariant holds.
+        huge = 1e18
+        tv = TruthValue.from_evidence(huge, huge)
+        assert tv.confidence < 1.0
+        assert tv.confidence == math.nextafter(1.0, 0.0)
+        assert math.isclose(tv.frequency, 0.5)
+
 
 # revision -----------------------------------------------------------------
 

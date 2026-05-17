@@ -59,13 +59,13 @@ truth-values, see `neurath.LLMTranslator`.
 
 ## Install
 
-A wheel + sdist are attached to each [GitHub Release](https://github.com/hinanohart/neurath/releases). For `v0.1.0`:
+A wheel + sdist (and a CycloneDX SBOM, from `v0.1.1` onward) are attached to each [GitHub Release](https://github.com/hinanohart/neurath/releases). For the latest `0.1.x`:
 
 ```bash
-pip install https://github.com/hinanohart/neurath/releases/download/v0.1.0/neurath-0.1.0-py3-none-any.whl
+pip install https://github.com/hinanohart/neurath/releases/download/v0.1.1/neurath-0.1.1-py3-none-any.whl
 ```
 
-(Verified end-to-end in a clean Python 3.12 venv as part of the release process.)
+(For other versions, see the [Releases page](https://github.com/hinanohart/neurath/releases). Each tagged wheel is verified in a clean Python 3.12 venv as part of the release process.)
 
 PyPI publication is wired into `release.yml` via Trusted Publisher OIDC and
 will activate once the project is configured at
@@ -74,24 +74,26 @@ Until then, install from the GitHub Release URL above.
 
 ## Status — scaffold release
 
-`v0.1.0` is a **scaffold / preview release**. The four layers (BeliefStore,
+The `0.1.x` line is a **scaffold / preview release**. The four layers (BeliefStore,
 LLMTranslator, HolisticReviser, Introspector) are implemented and unit-tested
-(Hypothesis property-based for the NARS algebra, 56 cases total).
+(Hypothesis property-based for the NARS algebra, plus Quinean-invariant tests
+for the planner; 61 cases total in `v0.1.1`).
 
 ### What is verified
 
 - NARS truth-value algebra: commutativity, associativity, confidence
-  monotonicity, negation involution.
+  monotonicity, negation involution, and the huge-evidence c→1 clamp.
 - Holistic revision: ranked plans, mutilation scoring, in-place application
-  with history recording.
+  with history recording; configurable `propagation_weight`; irrelevance
+  preservation and rank-stability under irrelevant insertions.
 - Introspection: `why()` / `trace()` / `network_view()` JSON-serialisable.
 - Clean-venv install from the release wheel.
 
-### Limitations (please read before depending on this)
+### Engineering limitations (please read before depending on this)
 
 - **The Hase et al. 2024 numerical replication is not done.** The harness in
   `benchmark/` runs end-to-end, but a comparison with the paper's reported
-  accuracies has not been carried out for this tag. The acceptance-inversion
+  accuracies has not been carried out for any 0.1.x tag. The acceptance-inversion
   semantics are implemented at the conceptual level; numerical agreement is
   unproven.
 - **No VCR cassettes; no LLM cost accounting.** `LLMTranslator` requires a
@@ -100,11 +102,38 @@ LLMTranslator, HolisticReviser, Introspector) are implemented and unit-tested
 - **PyPI publication is gated on Trusted Publisher setup.** `pip install
   neurath` does not yet work; use the GitHub Release wheel.
 
+### Conceptual gaps (the philosophy is sketched, not finished)
+
+`v0.1.x` ships the *structure* into which Quinean revision fits, not a finished
+theory. To prevent overselling:
+
+- **`mutilation_score` is a placeholder.** It is `|ΔE| · (1 + propagation_weight · |downstream|)`
+  with `propagation_weight=0.1` by default. There is no semantic distance, no
+  prior probability, no network centrality. A learned or topology-aware
+  kernel is left for `v0.2`.
+- **`plan()` returns one alternative per contradicting target, not a richer
+  alternatives space.** It does not yet emit a "reject the observation"
+  plan, joint revisions over connected components, or Duhemian
+  auxiliary-hypothesis weakenings. Single-target revision is the Quinean
+  starting point, not the destination.
+- **Introspection is per-belief change history.** `why()` returns the
+  revisions on one belief; it does not yet walk the observation chain across
+  beliefs or surface the meta-rules (the choice rule, the propagation
+  kernel) as first-class introspectable objects.
+- **The `specializes` edge label is reserved but unused** by the planner —
+  the taxonomy semantics are not yet wired into mutilation.
+- **The LLM prompt is generic JSON estimation.** It does not yet flag
+  observational vs theoretical claims (Quine, *Roots of Reference*) or
+  request auxiliary-hypothesis annotations.
+
+If you depend on any of these as "implemented," please pin to a future
+release that promotes the relevant item out of this list.
+
 ### Adoption metrics (post-release, not blockers for the tag)
 
 External adoption (issues filed, downstream forks, citation in benchmarks)
-will be reviewed 30 and 90 days after the tag, separately from the release
-DoD above. They are deliberately not part of what `v0.1.0` claims to deliver.
+will be reviewed 30 and 90 days after each tag, separately from the release
+DoD above. They are deliberately not part of what `0.1.x` claims to deliver.
 
 ## License
 

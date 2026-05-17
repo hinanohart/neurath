@@ -25,9 +25,7 @@ from dataclasses import dataclass
 from typing import Self
 
 DEFAULT_HORIZON: float = 1.0
-"""NARS horizon constant `k`. Standard value is 1."""
-
-EPSILON: float = 1e-12
+"""NARS horizon constant `k`. Standard value is 1 (Wang, *Rigid Flexibility*, §3.2, p. 67)."""
 
 
 @dataclass(frozen=True, slots=True)
