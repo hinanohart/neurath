@@ -1,5 +1,10 @@
 # neurath
 
+[![ci](https://github.com/hinanohart/neurath/actions/workflows/ci.yml/badge.svg)](https://github.com/hinanohart/neurath/actions/workflows/ci.yml)
+[![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![python](https://img.shields.io/badge/python-3.11%2B-blue)](pyproject.toml)
+[![release](https://img.shields.io/github/v/release/hinanohart/neurath)](https://github.com/hinanohart/neurath/releases)
+
 > *"We are like sailors who on the open sea must reconstruct their ship but are never able to start afresh from the bottom."*
 > — Otto Neurath, *Anti-Spengler* (1921), cited by W.V.O. Quine as the epigraph of *Word and Object*.
 
@@ -52,12 +57,54 @@ print(trace["revisions"][0]["rationale"])
 For the LLM-backed translator that turns natural-language claims into NARS
 truth-values, see `neurath.LLMTranslator`.
 
-## Status
+## Install
 
-`v0.1.0` — alpha. The four layers (BeliefStore, LLMTranslator, HolisticReviser,
-Introspector) are implemented and unit-tested (Hypothesis property-based for the
-NARS algebra). The Hase 2024 benchmark harness is in `benchmark/`; numbers are
-not yet published with the release — see `benchmark/README.md` to reproduce.
+A wheel + sdist are attached to each [GitHub Release](https://github.com/hinanohart/neurath/releases). For `v0.1.0`:
+
+```bash
+pip install https://github.com/hinanohart/neurath/releases/download/v0.1.0/neurath-0.1.0-py3-none-any.whl
+```
+
+(Verified end-to-end in a clean Python 3.12 venv as part of the release process.)
+
+PyPI publication is wired into `release.yml` via Trusted Publisher OIDC and
+will activate once the project is configured at
+[pypi.org/manage/account/publishing/](https://pypi.org/manage/account/publishing/).
+Until then, install from the GitHub Release URL above.
+
+## Status — scaffold release
+
+`v0.1.0` is a **scaffold / preview release**. The four layers (BeliefStore,
+LLMTranslator, HolisticReviser, Introspector) are implemented and unit-tested
+(Hypothesis property-based for the NARS algebra, 56 cases total).
+
+### What is verified
+
+- NARS truth-value algebra: commutativity, associativity, confidence
+  monotonicity, negation involution.
+- Holistic revision: ranked plans, mutilation scoring, in-place application
+  with history recording.
+- Introspection: `why()` / `trace()` / `network_view()` JSON-serialisable.
+- Clean-venv install from the release wheel.
+
+### Limitations (please read before depending on this)
+
+- **The Hase et al. 2024 numerical replication is not done.** The harness in
+  `benchmark/` runs end-to-end, but a comparison with the paper's reported
+  accuracies has not been carried out for this tag. The acceptance-inversion
+  semantics are implemented at the conceptual level; numerical agreement is
+  unproven.
+- **No VCR cassettes; no LLM cost accounting.** `LLMTranslator` requires a
+  live API call (or a stubbed `completion_fn` in tests). Replay-only CI for
+  LLM-touching tests is deferred.
+- **PyPI publication is gated on Trusted Publisher setup.** `pip install
+  neurath` does not yet work; use the GitHub Release wheel.
+
+### Adoption metrics (post-release, not blockers for the tag)
+
+External adoption (issues filed, downstream forks, citation in benchmarks)
+will be reviewed 30 and 90 days after the tag, separately from the release
+DoD above. They are deliberately not part of what `v0.1.0` claims to deliver.
 
 ## License
 

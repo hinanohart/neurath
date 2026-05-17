@@ -3,7 +3,12 @@
 All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] — 2026-05-18
+## [0.1.0] — 2026-05-18 (scaffold release)
+
+This is a scaffold / preview release. The four layers are implemented and the
+release wheel installs cleanly in a fresh venv. The benchmark numbers from
+Hase et al. 2024 are *not* yet reproduced for this tag — see Limitations in
+the README for what is and is not verified.
 
 ### Added
 - L1 — `TruthValue`: NARS `<frequency, confidence>` algebra (revision, choice,
@@ -29,3 +34,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Project
 - Apache 2.0 license; Python ≥ 3.11; deps `networkx`, `pydantic`, `litellm`, `pyyaml`.
+
+### Known limitations
+- **Hase et al. 2024 numerical replication unfinished.** The harness runs;
+  agreement with the published accuracies is unproven.
+- **No VCR cassettes for LLM tests.** Real-API replay-only CI is deferred.
+- **PyPI publish gated on Trusted Publisher.** Install via the GitHub Release
+  wheel until the project is configured at pypi.org.
