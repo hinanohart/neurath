@@ -45,6 +45,7 @@ class BeliefStore:
 
     def __init__(self) -> None:
         self._graph: nx.MultiDiGraph = nx.MultiDiGraph()
+        self._history: dict[BeliefId, list[object]] = {}
 
     def __len__(self) -> int:
         return self._graph.number_of_nodes()
@@ -107,3 +108,21 @@ class BeliefStore:
     def graph_view(self) -> nx.MultiDiGraph:
         """Return the underlying graph for read-only inspection (do not mutate)."""
         return self._graph
+
+    # -- revision history ---------------------------------------------------
+
+    def record_revision(self, belief_id: BeliefId, record: object) -> None:
+        """Append a revision record to the history of `belief_id`.
+
+        The record's concrete type is :class:`neurath.introspect.RevisionRecord`,
+        but is typed loosely here to keep the store free of an L4 import.
+        """
+        if belief_id not in self:
+            raise KeyError(f"unknown belief id: {belief_id!r}")
+        self._history.setdefault(belief_id, []).append(record)
+
+    def history_for(self, belief_id: BeliefId) -> list[object]:
+        """Return the (ordered) revision records for `belief_id`."""
+        if belief_id not in self:
+            raise KeyError(f"unknown belief id: {belief_id!r}")
+        return list(self._history.get(belief_id, []))
