@@ -21,15 +21,43 @@ It embodies three concepts from W.V.O. Quine's philosophy in working code:
 
 neurath fills the bridge: every LLM-derived claim becomes a NARS `<frequency, confidence>` node in a `networkx` graph, and a single new observation can trigger a global revision that surfaces *why* a particular belief had to be retracted.
 
+## Quick start
+
+```python
+from neurath import (
+    Belief, BeliefStore, HolisticReviser, Introspector, TruthValue,
+)
+
+store = BeliefStore()
+
+# Two beliefs that contradict each other.
+birds_fly = Belief(statement="birds can fly",
+                   truth=TruthValue(frequency=0.95, confidence=0.7))
+ostriches_dont = Belief(statement="ostriches cannot fly",
+                        truth=TruthValue(frequency=1.0, confidence=0.95))
+store.add(birds_fly)
+store.add(ostriches_dont)
+store.link(ostriches_dont.id, birds_fly.id, "contradicts")
+
+# Plan the revision that least mutilates the web.
+reviser = HolisticReviser(store)
+plans = reviser.plan(ostriches_dont)            # ranked by mutilation_score
+reviser.apply(plans[0])                          # apply the cheapest
+
+# Ask why the truth-value moved.
+trace = Introspector(store).trace(birds_fly.id)
+print(trace["revisions"][0]["rationale"])
+```
+
+For the LLM-backed translator that turns natural-language claims into NARS
+truth-values, see `neurath.LLMTranslator`.
+
 ## Status
 
-Pre-alpha. `v0.1.0` targets:
-
-- L1 BeliefStore with NARS truth-value algebra
-- L2 LiteLLM-backed claim ↔ truth-value translator
-- L3 Holistic revision with `minimum_mutilation` scoring
-- L4 `belief.why()` introspection
-- Reproducible baseline numbers on the [Hase 2024 LLM-belief-revision dataset](https://github.com/peterbhase/LLM-belief-revision)
+`v0.1.0` — alpha. The four layers (BeliefStore, LLMTranslator, HolisticReviser,
+Introspector) are implemented and unit-tested (Hypothesis property-based for the
+NARS algebra). The Hase 2024 benchmark harness is in `benchmark/`; numbers are
+not yet published with the release — see `benchmark/README.md` to reproduce.
 
 ## License
 

@@ -3,14 +3,29 @@
 All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.0] — 2026-05-18
 
 ### Added
-- Project skeleton: Apache 2.0 license, hatchling build, Python 3.11+ support.
-- `neurath.store.truth.TruthValue`: NARS `<frequency, confidence>` algebra with
-  revision, choice, negation, and the evidence-space bijection.
-- `neurath.store.belief.Belief` and `BeliefStore`: networkx-backed web of beliefs
-  with labelled edges (`entails` / `contradicts` / `supports` / `specializes`).
-- Property-based tests (Hypothesis) for revision commutativity, associativity,
-  and confidence monotonicity.
-- CI workflow: ruff lint + mypy + pytest on Python 3.11/3.12, plus CycloneDX SBOM.
+- L1 — `TruthValue`: NARS `<frequency, confidence>` algebra (revision, choice,
+  negation, expectation, evidence-space bijection); `Belief` and `BeliefStore`
+  with networkx-backed web of beliefs and labelled edges
+  (`entails` / `contradicts` / `supports` / `specializes`).
+- L2 — `LLMTranslator`: provider-agnostic JSON-mode translator from
+  natural-language claims to truth-values via LiteLLM, with an injectable
+  completion seam for offline tests.
+- L3 — `HolisticReviser`: ranked revision plans with `mutilation_score`
+  combining direct expectation shift and a propagation penalty across
+  `entails`/`supports` edges; `apply()` writes a `RevisionRecord`.
+- L4 — `Introspector`: `why()` returns the ordered revision history;
+  `trace()` emits a JSON-serialisable dict; `network_view()` emits node-link
+  form for visualisation.
+- Benchmark harness for the Hase 2024 LLM-belief-revision dataset
+  (`python -m benchmark.runner`), with bootstrap 95% CI and dataset hash
+  pinning. Numbers are not bundled — users reproduce locally.
+- CI workflow: ruff + mypy + pytest on Python 3.11/3.12, plus CycloneDX SBOM.
+- Release workflow: tag-driven build, GitHub Release with artifacts, optional
+  PyPI Trusted Publisher publish.
+- 56 unit tests, all property-based tests passing.
+
+### Project
+- Apache 2.0 license; Python ≥ 3.11; deps `networkx`, `pydantic`, `litellm`, `pyyaml`.

@@ -1,6 +1,6 @@
 """neurath — belief revision bridging NARS truth-values and LLM claims."""
 
-__version__ = "0.0.1"
+__version__ = "0.1.0"
 
 from neurath.introspect import Introspector, RevisionRecord
 from neurath.llm import LLMTranslator, TranslationError, TruthEstimate
