@@ -6,13 +6,13 @@ authors:
     given-names: "Hinano"
     alias: "hinanohart"
 type: software
-license: "NOASSERTION"
+license: "MIT"
 repository-code: "https://github.com/hinanohart/neurath"
 url: "https://github.com/hinanohart/neurath"
 version: "0.1.1"
 date-released: "2026-05-17"
 keywords:
-  - "apache-2-0"
+  - "mit"
   - "belief-revision"
   - "epistemology"
   - "knowledge-graph"

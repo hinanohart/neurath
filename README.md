@@ -1,7 +1,7 @@
 # neurath
 
 [![ci](https://github.com/hinanohart/neurath/actions/workflows/ci.yml/badge.svg)](https://github.com/hinanohart/neurath/actions/workflows/ci.yml)
-[![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![python](https://img.shields.io/badge/python-3.11%2B-blue)](pyproject.toml)
 [![release](https://img.shields.io/github/v/release/hinanohart/neurath)](https://github.com/hinanohart/neurath/releases)
 
@@ -137,4 +137,4 @@ DoD above. They are deliberately not part of what `0.1.x` claims to deliver.
 
 ## License
 
-Apache 2.0
+MIT

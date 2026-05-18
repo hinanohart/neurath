@@ -8,13 +8,13 @@ version = "0.1.1"
 description = "Belief revision library bridging NARS truth-value math and LLM belief tracking, embodying Quine's Web of Belief"
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "Apache-2.0" }
+license = { text = "MIT" }
 authors = [{ name = "hinanohart" }]
 keywords = ["belief-revision", "NARS", "LLM", "Quine", "epistemology", "knowledge-graph"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: Apache Software License",
+    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
