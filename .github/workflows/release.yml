@@ -50,7 +50,7 @@ jobs:
         with:
           name: sbom
           path: sbom/
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           # Attach distributions AND the supply-chain SBOM to the release.
           files: |
