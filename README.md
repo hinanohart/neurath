@@ -109,7 +109,7 @@ Every belief is a Pydantic model holding a `statement` string and a NARS `TruthV
 
 ### 2. Truth-value algebra (`TruthValue`)
 
-Implements NARS algebra: revision (`+`), choice (keep higher evidence), negation, and expectation (`E = c(f − 0.5) + 0.5`). Property-based tests (Hypothesis) verify commutativity, associativity, confidence monotonicity, and the huge-evidence clamp.
+Implements NARS algebra: revision (`.revise()`), choice (keep higher evidence), negation, and expectation (`E = c(f − 0.5) + 0.5`). Property-based tests (Hypothesis) verify commutativity, associativity, confidence monotonicity, and the huge-evidence clamp.
 
 ### 3. Holistic revision (`HolisticReviser`)
 
