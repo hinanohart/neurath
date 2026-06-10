@@ -1,0 +1,49 @@
+direction: down
+explanation: |md
+  ### neurath
+  **Python belief-revision library bridging NARS truth-value math and LLM-derived claims — computes minimum-mutilation revision plans.**
+| {near: top-center}
+
+nlclaim: "① Natural language claim" {shape: oval; style: {fill: "#6366f1"; font-color: "#fff"; stroke: "#4338ca"; bold: true; font-size: 18}}
+llm: "② LLMTranslator" {style: {fill: "#0ea5e9"; font-color: "#fff"; stroke: "#0369a1"; bold: true; font-size: 18}}
+nlclaim -> llm: "② translate"
+
+beliefs: "Belief Layer" {
+  style: {fill: "#f0fdf4"; stroke: "#10b981"; font-color: "#065f46"; bold: true; font-size: 16}
+  tv: "③ TruthValue\nfrequency + confidence"
+  belief: "③ Belief"
+  store: "④ BeliefStore"
+  tv.style.fill: "#dcfce7"; tv.style.font-color: "#065f46"
+  belief.style.fill: "#dcfce7"; belief.style.font-color: "#065f46"
+  store.style.fill: "#dcfce7"; store.style.font-color: "#065f46"
+}
+llm -> beliefs.tv: "③ frequency + confidence"
+beliefs.tv -> beliefs.belief: "③ attach"
+beliefs.belief -> beliefs.store: "④ store"
+
+graph: "⑤ Belief graph\nnetworkx MultiDiGraph" {style: {fill: "#0ea5e9"; font-color: "#fff"; stroke: "#0369a1"; bold: true}}
+beliefs.store -> graph: "⑤ build"
+
+revision: "Revision Engine" {
+  style: {fill: "#fffbeb"; stroke: "#f59e0b"; font-color: "#92400e"; bold: true; font-size: 16}
+  reviser: "⑥ HolisticReviser\ncontradicts edge"
+  planner: "⑦ Minimum mutilation planner\nranked RevisionPlans"
+  reviser.style.fill: "#fef3c7"; reviser.style.font-color: "#92400e"
+  planner.style.fill: "#fef3c7"; planner.style.font-color: "#92400e"
+}
+graph -> revision.reviser: "⑥ contradicts edge"
+revision.reviser -> revision.planner: "⑦ ranked RevisionPlans"
+revision.planner -> beliefs.store: "⑦ apply cheapest plan"
+
+introspect: "⑧ Introspector" {style: {fill: "#dcfce7"; font-color: "#065f46"; stroke: "#10b981"; bold: true}}
+beliefs.store -> introspect: "⑧ read"
+
+output: "⑨ JSON-serialisable audit trail\nwhy + trace + network_view" {shape: cylinder; style: {fill: "#fdf2f8"; stroke: "#ec4899"; font-color: "#9d174e"; bold: true}}
+introspect -> output: "⑨ emit"
+
+legend: "Legend" {
+  near: bottom-center
+  style: {fill: "#f8fafc"; stroke: "#cbd5e1"; font-size: 13}
+  e: "● entry"; c: "● core"; p: "● belief"; b: "● revision"; d: "● output"
+  e.style.font-color: "#4338ca"; c.style.font-color: "#0369a1"; p.style.font-color: "#10b981"; b.style.font-color: "#f59e0b"; d.style.font-color: "#ec4899"
+}

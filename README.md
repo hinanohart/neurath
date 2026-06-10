@@ -100,19 +100,9 @@ Plans are returned sorted by ascending score. `apply()` commits the cheapest pla
 
 ## Architecture
 
-```mermaid
-flowchart TD
-    NL[Natural language claim] --> LLMTranslator
-    LLMTranslator -->|frequency + confidence| TruthValue
-    TruthValue --> Belief
-    Belief --> BeliefStore
-    BeliefStore -->|networkx MultiDiGraph| Graph[Belief graph]
-    Graph -->|contradicts edge| HolisticReviser
-    HolisticReviser -->|ranked RevisionPlans| Planner[Minimum mutilation planner]
-    Planner -->|apply cheapest plan| BeliefStore
-    BeliefStore --> Introspector
-    Introspector -->|why + trace + network_view| Output[JSON-serialisable audit trail]
-```
+<div align="center">
+  <img src="docs/architecture.png" alt="neurath architecture" width="840">
+</div>
 
 ## Quinean concepts in code
 
@@ -154,3 +144,4 @@ If you depend on any of these as "implemented," please pin to a future release t
 ## License
 
 MIT
+
