@@ -1,40 +1,13 @@
 # neurath
 
-[![ci](https://github.com/hinanohart/neurath/actions/workflows/ci.yml/badge.svg)](https://github.com/hinanohart/neurath/actions/workflows/ci.yml)
-[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![python](https://img.shields.io/badge/python-3.11%2B-blue)](pyproject.toml)
-[![release](https://img.shields.io/github/v/release/hinanohart/neurath)](https://github.com/hinanohart/neurath/releases)
-
-> *"We are like sailors who on the open sea must reconstruct their ship but are never able to start afresh from the bottom."*
-> — Otto Neurath, *Anti-Spengler* (1921), cited by W.V.O. Quine as the epigraph of *Word and Object*.
+[![ci](https://github.com/hinanohart/neurath/actions/workflows/ci.yml/badge.svg)](https://github.com/hinanohart/neurath/actions/workflows/ci.yml) [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![python](https://img.shields.io/badge/python-3.11%2B-blue)](pyproject.toml) [![release](https://img.shields.io/github/v/release/hinanohart/neurath)](https://github.com/hinanohart/neurath/releases)
 
 **neurath** is a Python belief-revision library that bridges [NARS](https://www.opennars.org/) truth-value math and LLM-derived claims. When new evidence contradicts an existing belief, neurath computes the *minimum mutilation* revision plan — the smallest surgical edit that preserves the most of what was already believed.
 
 Plain English: give neurath a set of beliefs (each tagged with a NARS `<frequency, confidence>` pair), connect them with typed edges, and when a contradiction arrives it will tell you *which belief to retract* and *why*, with the least collateral damage to the rest of the network.
 
-## Architecture
-
-```mermaid
-flowchart TD
-    NL[Natural language claim] --> LLMTranslator
-    LLMTranslator -->|frequency + confidence| TruthValue
-    TruthValue --> Belief
-    Belief --> BeliefStore
-    BeliefStore -->|networkx MultiDiGraph| Graph[Belief graph]
-    Graph -->|contradicts edge| HolisticReviser
-    HolisticReviser -->|ranked RevisionPlans| Planner[Minimum mutilation planner]
-    Planner -->|apply cheapest plan| BeliefStore
-    BeliefStore --> Introspector
-    Introspector -->|why + trace + network_view| Output[JSON-serialisable audit trail]
-```
-
-## Quinean concepts in code
-
-| Quine concept            | Layer                       |
-|--------------------------|-----------------------------|
-| Web of Belief            | `BeliefStore` (networkx)    |
-| Duhem-Quine / Holism     | `HolisticReviser`           |
-| Naturalized Epistemology | `Introspector.why()`        |
+> *"We are like sailors who on the open sea must reconstruct their ship but are never able to start afresh from the bottom."*
+> — Otto Neurath, *Anti-Spengler* (1921), cited by W.V.O. Quine as the epigraph of *Word and Object*.
 
 ## Why neurath?
 
@@ -124,6 +97,30 @@ Plans are returned sorted by ascending score. `apply()` commits the cheapest pla
 ### 4. Introspection (`Introspector`)
 
 `why(belief_id)` returns the full revision history for a belief. `trace(belief_id)` bundles it with the current truth-value. `network_view()` exports the entire graph as a JSON-serialisable dict for visualisation or downstream processing.
+
+## Architecture
+
+```mermaid
+flowchart TD
+    NL[Natural language claim] --> LLMTranslator
+    LLMTranslator -->|frequency + confidence| TruthValue
+    TruthValue --> Belief
+    Belief --> BeliefStore
+    BeliefStore -->|networkx MultiDiGraph| Graph[Belief graph]
+    Graph -->|contradicts edge| HolisticReviser
+    HolisticReviser -->|ranked RevisionPlans| Planner[Minimum mutilation planner]
+    Planner -->|apply cheapest plan| BeliefStore
+    BeliefStore --> Introspector
+    Introspector -->|why + trace + network_view| Output[JSON-serialisable audit trail]
+```
+
+## Quinean concepts in code
+
+| Quine concept            | Layer                       |
+|--------------------------|-----------------------------|
+| Web of Belief            | `BeliefStore` (networkx)    |
+| Duhem-Quine / Holism     | `HolisticReviser`           |
+| Naturalized Epistemology | `Introspector.why()`        |
 
 ## Status — scaffold release (`0.1.x`)
 
